@@ -51,7 +51,9 @@ while running:
 			button.draw()
 
 		for event in pygame.event.get():
-			if event.type == pygame.MOUSEBUTTONDOWN:
+			if event.type == pygame.QUIT:
+				running = False
+			elif event.type == pygame.MOUSEBUTTONDOWN:
 				for button in menu:
 					if button.rect.collidepoint(event.pos):
 						if button.content == "Play":
@@ -62,6 +64,9 @@ while running:
 							pass
 
 	if state == PLAY:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
 		# draw the board
 		xbase1 = 50
 		xbase2 = 225
