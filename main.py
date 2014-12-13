@@ -6,23 +6,6 @@ GREEN = (   0, 255,   0)
 RED   = ( 255,   0,   0)
 FONT  = "monospace"
 
-pygame.init()
-size = (600, 400)
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption("3D Tic Tac Toe - Lillian Chen & Jim Yu")
-
-clock = pygame.time.Clock()
-
-running = True
-
-# game states
-BEGIN = 0
-PLAY = 1
-LEARN = 2
-ABOUT = 3
-
-state = BEGIN
-
 class Button:
 	mouseOn = False
 
@@ -38,28 +21,45 @@ class Button:
 		textpos.center = self.rect.center
 		screen.blit(self.rend, textpos)
 
+# initialization
+pygame.init()
+size = (600, 400)
+screen = pygame.display.set_mode(size)
+pygame.display.set_caption("3D Tic Tac Toe - Lillian Chen & Jim Yu")
+clock = pygame.time.Clock()
+running = True
+
+# game states
+BEGIN = 0
+PLAY = 1
+LEARN = 2
+ABOUT = 3
+
+state = BEGIN
+
 while running:
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			running = False
-
 	screen.fill(WHITE)
-
+	
+	# start screen
 	if state == BEGIN:
-		# start screen
 		content_init = pygame.font.SysFont(FONT, 30)
 		menu = [Button(BLACK, [225, 50, 150, 80], "Play"),
 						Button(BLACK, [225, 150, 150, 80], "Learn"),
 						Button(BLACK, [225, 250, 150, 80], "About")]
 
-		pygame.event.pump()
 		for button in menu:
 			button.draw()
-			if button.rend.get_rect().collidepoint(pygame.mouse.get_pos()):
-				button.mouseOn = True
-			else:
-				button.mouseOn = False
-		pygame.display.flip()
+
+		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				for button in menu:
+					if button.rect.collidepoint(event.pos):
+						if button.content == "Play":
+							state = PLAY
+						if button.content == "About":
+							state = ABOUT
+						else:
+							pass
 
 	if state == PLAY:
 		# draw the board
@@ -76,14 +76,11 @@ while running:
 					pygame.draw.rect(screen, BLACK, [xbase2 + add, y, 50, 50], 2)
 				pygame.draw.rect(screen, BLACK, [xbase3 + add, y, 50, 50], 2)
 
-		# if event.type == pygame.MOUSEBUTTONDOWN:
-
 
 	if state == ABOUT:
 		pass
 		
 	pygame.display.flip()
-
 	clock.tick(60)
 
 pygame.quit()
