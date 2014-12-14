@@ -1,5 +1,6 @@
 import pygame
 import board
+import bot
 
 BLACK = (   0,   0,   0)
 WHITE = ( 255, 255, 255)
@@ -34,6 +35,7 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("3D Tic Tac Toe - Lillian Chen & Jim Yu")
 clock = pygame.time.Clock()
 running = True
+comp = bot.Bot()
 
 def initialize():
 	global squares
@@ -120,7 +122,21 @@ while running:
 		screen.blit(label, label_pos)
 
 	if state == PLAY:
-		content_init = pygame.font.Font("font/gotham.otf", 25)
+		content_init = pygame.font.Font("font/gotham.otf", 20)
+
+		if player == 2:
+			try:
+				comp_move = comp.move(gameboard)
+				if gameboard.update(comp_move, 2):
+					winner = 2
+					state = END
+				for square in squares:
+					if square.pos == comp_move:
+						square.content = "O"
+						player = 1
+			except:
+				pass
+
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
@@ -135,16 +151,9 @@ while running:
 								square.content = "X"
 								player = 2
 							except:
-								state = BEGIN
+								pass
 						elif player == 2:
-							try:
-								if gameboard.update(square.pos, 2):
-									winner = 2
-									state = END
-								square.content = "O"
-								player = 1
-							except:
-								state = BEGIN
+							pass
 
 		for square in squares:
 			square.draw()
