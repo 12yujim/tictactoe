@@ -1,4 +1,5 @@
 import pygame
+import board
 
 BLACK = (   0,   0,   0)
 WHITE = ( 255, 255, 255)
@@ -9,10 +10,11 @@ FONT  = "monospace"
 class Button:
 	mouseOn = False
 
-	def __init__(self, color, rect, content):
+	def __init__(self, color, rect, content, pos=None):
 		self.color = color
 		self.rect = pygame.Rect(rect)
 		self.content = content
+		self.pos = pos
 
 	def draw(self):
 		self.rend = content_init.render(self.content, 1, BLACK)
@@ -32,23 +34,29 @@ player = 1
 
 # draw the board
 squares = []
-for y in [125, 175, 225]:
-	for i in range(3):
-		add = i * 50
-		squares.append(Button(BLACK, [50 + add, y, 50, 50], ""))
-		if y == 175 and add == 50:
+for y in range(3):
+	y_coord = 125 + (y * 50)
+	for x in range(3):
+		x_coord = x * 50
+		squares.append(Button(BLACK, [50 + x_coord, y_coord, 50, 50], "", (x, y, 0)))
+		if y_coord == 175 and x_coord == 50:
 			pass
 		else:
-			squares.append(Button(BLACK, [225 + add, y, 50, 50], ""))
-		squares.append(Button(BLACK, [400 + add, y, 50, 50], ""))
+			squares.append(Button(BLACK, [225 + x_coord, y_coord, 50, 50], "", (x, y, 1)))
+		squares.append(Button(BLACK, [400 + x_coord, y_coord, 50, 50], "", (x, y, 2)))
 
 # game states
 BEGIN = 0
 PLAY = 1
 LEARN = 2
 ABOUT = 3
+END = 4
 
 state = BEGIN
+
+# initialize the gameboard
+gameboard = board.Board()
+winner = 0
 
 while running:
 	screen.fill(WHITE)
@@ -84,11 +92,23 @@ while running:
 				for square in squares:
 					if square.rect.collidepoint(event.pos):
 						if player == 1:
-							square.content = "X"
-							player = 2
+							try:
+								if gameboard.update(square.pos, 1):
+									winner = 1
+									state = END
+								square.content = "X"
+								player = 2
+							except:
+								pass
 						elif player == 2:
-							square.content = "O"
-							player = 1
+							try:
+								if gameboard.update(square.pos, 2):
+									winner = 2
+									state = END
+								square.content = "O"
+								player = 1
+							except:
+								pass
 
 		for square in squares:
 			square.draw()
@@ -96,7 +116,16 @@ while running:
 
 	if state == ABOUT:
 		pass
-		
+	
+	if state == END:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
+		myfont = pygame.font.SysFont(FONT, 50)
+		the_win = "Player %s wins!" % winner
+		label = myfont.render(the_win, 1, BLACK)
+		screen.blit(label, (100,100))
+
 	pygame.display.flip()
 	clock.tick(60)
 
