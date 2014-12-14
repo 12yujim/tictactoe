@@ -4,35 +4,43 @@ class Board(object):
 	def __init__(self):
 		# initialize the boardstate
 		self.top = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
-		# mid is initialized with 3 in the center row for ease
-		self.mid = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
+		# mid is initialized with 3 in the center row to indicate it cannot be played
+		self.mid = [[0, 0, 0],[0, 3, 0],[0, 0, 0]]
 		self.bot = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
 		self.board = [self.top, self.mid, self.bot]
 
-	def update(self, x, y, z, player):
-		if self.board[z][x][y] == 0:
-			self.board[z][x][y] = player
+	def update(self, (x, y, z), player):
+		if self.board[z][y][x] == 0:
+			self.board[z][y][x] = player
 		else:
 			raise Exception
-		return self.check_win(x, y, z, player)
+		return self.check_win(player)
 
-	def check_win(self, x, y, z, player):
-		# use modulo 3 for wrap around checking
-		for directionx in [0, 1]:
-			for directiony in [0, 1]:
-				for directionz in [0, 1]:
-					newx = (x + directionx) % 3
-					newy = (y + directiony) % 3
-					newz = (z + directionz) % 3
-					found = 1
-					while x != newx or y != newy or z != newz:
-						if self.board[newz][newx][newy] == player:
-							found += 1
-						newx = (newx + directionx) % 3
-						newy = (newy + directiony) % 3
-						newz = (newz + directionz) % 3
-					if found >= 3:
-						return True
+	def check_win(self, player):
+		for x in range(3):
+			for y in range(3):
+				for z in range(3):
+					if self.board[z][y][x] != player:
+						continue
+					for dx in [0, 1]:
+						for dy in [0, 1]:
+							for dz in [0, 1]:
+								if dx == 0 and dy == 0 and dz == 0:
+									continue
+								newx = x + dx
+								newy = y + dy
+								newz = z + dz
+								found = 1
+								while (0 <= newx < 3) and (0 <= newy < 3) and (0 <= newz < 3):
+									if self.board[newz][newy][newx] == player:
+										found += 1
+									else:
+										break
+									newx += dx
+									newy += dy
+									newz += dz
+								if found >= 3:
+									return True
 		return False
 
 	# returns the board_state in a string representation
