@@ -30,20 +30,28 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("3D Tic Tac Toe - Lillian Chen & Jim Yu")
 clock = pygame.time.Clock()
 running = True
-player = 1
 
-# draw the board
-squares = []
-for y in range(3):
-	y_coord = 125 + (y * 50)
-	for x in range(3):
-		x_coord = x * 50
-		squares.append(Button(BLACK, [50 + x_coord, y_coord, 50, 50], "", (x, y, 0)))
-		if y_coord == 175 and x_coord == 50:
-			pass
-		else:
-			squares.append(Button(BLACK, [225 + x_coord, y_coord, 50, 50], "", (x, y, 1)))
-		squares.append(Button(BLACK, [400 + x_coord, y_coord, 50, 50], "", (x, y, 2)))
+def initialize():
+	global squares
+	global gameboard
+	global winner
+	global player
+	# draw the board
+	squares = []
+	for y in range(3):
+		y_coord = 125 + (y * 50)
+		for x in range(3):
+			x_coord = x * 50
+			squares.append(Button(BLACK, [50 + x_coord, y_coord, 50, 50], "", (x, y, 0)))
+			if y_coord == 175 and x_coord == 50:
+				pass
+			else:
+				squares.append(Button(BLACK, [225 + x_coord, y_coord, 50, 50], "", (x, y, 1)))
+			squares.append(Button(BLACK, [400 + x_coord, y_coord, 50, 50], "", (x, y, 2)))
+	# initialize the gameboard
+	gameboard = board.Board()
+	winner = 0
+	player = 1
 
 # game states
 BEGIN = 0
@@ -54,9 +62,7 @@ END = 4
 
 state = BEGIN
 
-# initialize the gameboard
-gameboard = board.Board()
-winner = 0
+initialize()
 
 while running:
 	screen.fill(WHITE)
@@ -121,10 +127,18 @@ while running:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
-		myfont = pygame.font.SysFont(FONT, 50)
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RETURN:
+					initialize()
+					state = BEGIN
+		winfont = pygame.font.SysFont(FONT, 50)
+		replayfont = pygame.font.SysFont(FONT, 30)
 		the_win = "Player %s wins!" % winner
-		label = myfont.render(the_win, 1, BLACK)
-		screen.blit(label, (100,100))
+		replay = "Press ENTER"
+		label = winfont.render(the_win, 1, BLACK)
+		label2 = replayfont.render(replay, 1, BLACK)
+		screen.blit(label, (100,150))
+		screen.blit(label2, (175, 250))
 
 	pygame.display.flip()
 	clock.tick(60)
