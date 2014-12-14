@@ -17,8 +17,12 @@ class Button:
 		self.pos = pos
 
 	def draw(self):
-		self.rend = content_init.render(self.content, 1, BLACK)
-		pygame.draw.rect(screen, self.color, self.rect, 2)
+		if self.mouseOn:
+			self.rend = content_init.render(self.content, 1, WHITE)
+			pygame.draw.rect(screen, self.color, self.rect)
+		else:
+			self.rend = content_init.render(self.content, 1, BLACK)
+			pygame.draw.rect(screen, self.color, self.rect, 2)
 		textpos = self.rend.get_rect()
 		textpos.center = self.rect.center
 		screen.blit(self.rend, textpos)
@@ -78,6 +82,10 @@ while running:
 						Button(BLACK, [225, 250, 150, 60], "About")]
 
 		for button in menu:
+			if button.rect.collidepoint(pygame.mouse.get_pos()):
+				button.mouseOn = True
+			else:
+				button.mouseOn = False
 			button.draw()
 
 		for event in pygame.event.get():
@@ -112,7 +120,7 @@ while running:
 		screen.blit(label, label_pos)
 
 	if state == PLAY:
-		content_init = pygame.font.Font(None, 25)
+		content_init = pygame.font.Font("font/gotham.otf", 25)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
@@ -161,7 +169,32 @@ while running:
 		screen.blit(bot_rend, (435, 300))
 
 	if state == ABOUT:
-		pass
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RETURN:
+					initialize()
+					state = BEGIN
+		aboutfont = pygame.font.Font("font/gotham.otf", 20)
+		backfont = pygame.font.Font(FONT, 10)
+		line1 = "3D Tic Tac Toe"
+		line2 = "Lillian Chen & Jim Yu"
+		line3 = "CS4701 - Bart Selman"
+		line4 = "Cornell University"
+		back = "Press ENTER"
+		label1 = aboutfont.render(line1, 1, BLACK)
+		label2 = aboutfont.render(line2, 1, BLACK)
+		label3 = aboutfont.render(line3, 1, BLACK)
+		label4 = aboutfont.render(line4, 1, BLACK)
+		back_rend = backfont.render(back, 1, BLACK)
+		back_pos = back_rend.get_rect()
+		back_pos.centerx = screen.get_rect().centerx
+		screen.blit(label1, (200, 125))
+		screen.blit(label2, (200, 150))
+		screen.blit(label3, (200, 175))
+		screen.blit(label4, (200, 200))
+		screen.blit(back_rend, (back_pos.left, 300))
 	
 	if state == END:
 		for event in pygame.event.get():
