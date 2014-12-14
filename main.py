@@ -126,12 +126,12 @@ while running:
 
 		if player == 2:
 			try:
-				comp_move = comp.move(gameboard)
-				if gameboard.update(comp_move, 2):
+				comp.move(gameboard)
+				if gameboard.update((comp.x,comp.y,comp.z), 2):
 					winner = 2
 					state = END
 				for square in squares:
-					if square.pos == comp_move:
+					if square.pos == (comp.x,comp.y,comp.z):
 						square.content = "O"
 						player = 1
 			except:

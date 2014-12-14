@@ -12,7 +12,6 @@ class Board(object):
 	def update(self, (x, y, z), player):
 		if self.board[z][y][x] == 0:
 			self.board[z][y][x] = player
-			print "%s" % self.board[z][y][x]
 		else:
 			raise Exception
 		return self.check_win(player)

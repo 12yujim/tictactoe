@@ -1,8 +1,10 @@
 import pygame
 
 class Bot:
-	def __init__(self):
-		pass
+	def __init__(self, x=0, y=0, z=0):
+		self.x = x
+		self.y = y
+		self.z = z
 
 	# returns (x,y,x) corresponding to tile bot makes move on
 	# right now takes the first empty square it finds
@@ -11,4 +13,6 @@ class Bot:
 			for y in range(3):
 				for z in range(3):
 					if Board.board[z][y][x] == 0:
-						then (x,y,z)
+						self.x = x
+						self.y = y
+						self.z = z
