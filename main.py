@@ -8,6 +8,11 @@ GREEN = (   0, 255,   0)
 RED   = ( 255,   0,   0)
 FONT  = "font/gameboy.ttf"
 
+
+LEARN = 0
+TEST = 1
+
+
 class Button:
 	mouseOn = False
 
@@ -28,6 +33,68 @@ class Button:
 		textpos.center = self.rect.center
 		screen.blit(self.rend, textpos)
 
+####################################################################################
+
+class SpecialList(object):
+	# list that orders elements of the form (a, b), ranked by a
+	# elements with larger rank go first
+	def __init__(self):
+		self.order = []
+
+	def add(self, elem):
+		rank = elem[0]
+		i = 0
+		for (prev_rank, dc) in self.order:
+			if prev_rank < rank:
+				break
+			i += 1
+		self.order.insert(i, elem)
+
+	def get_first(self):
+		return self.order[0][1]
+
+class Bot(object):
+	def __init__(self):
+		self.player = 2
+		self.scores = {}
+		self.prev_states = []
+		self.bot_type = 0
+
+	def make_move(self):
+		# we want to look at all available moves
+		# keep track of previous states to update at the end
+		# assign score as a function of the position in the list and final score
+		# earlier moves get punished/rewarded less for loss/win
+		# during learning phase, pick moves regardless of score in order to get a
+		# good distribution
+		if self.bot_type == 0:
+			after = SpecialList()
+			for move in gameboard.moves_avail():
+				try:
+					rank = self.scores[move]
+				except:
+					rank = 0
+				after.add((rank, move))
+			print after.get_first()
+			return after.get_first()
+		else:
+			pass
+			# self.state == TEST
+
+
+	def update(self, outcome):
+		# go through previous moves and assign value based on win or loss
+		# outcome is -1 if loss, +1 if win
+		i = 1.0
+		for state in self.prev_states:
+			try:
+				self.scores[state] += ((i/(len(self.prev_states) + 1)) * outcome)
+			except:
+				self.scores[state] = ((i/(len(self.prev_states) + 1)) * outcome)
+			i += 1.0
+
+####################################################################################
+
 # initialization
 pygame.init()
 size = (600, 400)
@@ -35,7 +102,7 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("3D Tic Tac Toe - Lillian Chen & Jim Yu")
 clock = pygame.time.Clock()
 running = True
-comp = bot.Bot()
+comp = Bot()
 
 def initialize():
 	global squares
@@ -126,12 +193,16 @@ while running:
 
 		if player == 2:
 			try:
-				comp.move(gameboard)
-				if gameboard.update((comp.x, comp.y, comp.z), 2):
+				# comp.move(gameboard)
+				# if gameboard.update((comp.x, comp.y, comp.z), 2):
+				comp_move = comp.make_move()
+				print 'hi'
+				print comp_move
+				if gameboard.update(comp_move, 2):
 					winner = 2
 					state = END
 				for square in squares:
-					if square.pos == (comp.x, comp.y, comp.z):
+					if square.pos == comp_move:
 						square.content = "O"
 						player = 1
 			except:
