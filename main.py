@@ -60,6 +60,8 @@ def initialize():
 	gameboard = board.Board()
 	winner = 0
 	player = 1
+	main_bot.board = gameboard
+	assist_bot.board = gameboard
 
 # game states
 BEGIN = 0
@@ -74,10 +76,10 @@ stop_learning = 0
 
 state = BEGIN
 
-initialize()
+main_bot = bot2.Bot(2)
+assist_bot = bot2.Bot(1)
 
-main_bot = bot2.Bot(2, gameboard)
-assist_bot = bot2.Bot(1, gameboard)
+initialize()
 
 while running:
 	screen.fill(WHITE)
@@ -99,6 +101,9 @@ while running:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
+			elif event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_j:
+					main_bot.display_progress()
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				for button in menu:
 					if button.rect.collidepoint(event.pos):
@@ -131,13 +136,12 @@ while running:
 		screen.blit(label, label_pos)
 
 	if state == PLAY:
-		main_bot.bot_type = 1
+		if main_bot.bot_type != 1:
+			main_bot.bot_type = 1
 		content_init = pygame.font.Font("font/gotham.otf", 20)
 
 		if player == 2:
 			try:
-				# comp.move(gameboard)
-				# if gameboard.update((comp.x, comp.y, comp.z), 2):
 				comp_move = main_bot.make_move()
 				if gameboard.update(comp_move, 2):
 					winner = 2
@@ -187,6 +191,8 @@ while running:
 		screen.blit(bot_rend, (435, 300))
 
 	if state == LEARN:
+		if main_bot.bot_type != 0:
+			main_bot.bot_type = 0
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
@@ -206,7 +212,7 @@ while running:
 					state = LEARN_END
 				for square in squares:
 					if square.pos == comp1_move:
-						sqaure.content = "X"
+						square.content = "X"
 						player = 2
 			except:
 				pass
@@ -267,7 +273,7 @@ while running:
 			assist_bot.update(-1)
 			the_win = "You win!"
 		elif winner == 2:
-			main_.update(1)
+			main_bot.update(1)
 			assist_bot.update(-1)
 			the_win = "You lose!"
 		else:
@@ -290,6 +296,7 @@ while running:
 				if event.key == pygame.K_RETURN:
 					stop_learning = 1
 		if stop_learning == 1:
+			main_bot.learned = 1
 			state = BEGIN
 		else:
 			state = LEARN
@@ -300,7 +307,7 @@ while running:
 		screen.blit(label, label_pos)
 		if winner == 1:
 			main_bot.update(-1)
-			assist_bot.update(-1)
+			assist_bot.update(1)
 		elif winner == 2:
 			main_bot.update(1)
 			assist_bot.update(-1)

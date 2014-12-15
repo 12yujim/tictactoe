@@ -25,12 +25,13 @@ class SpecialList(object):
 		return self.order[ind][1:]
 
 class Bot(object):
-	def __init__(self, player, board):
+	def __init__(self, player):
 		self.player = player
 		self.scores = {}
 		self.prev_states = []
 		self.bot_type = 0
-		self.board = board
+		self.board = None
+		self.learned = 0
 
 	def make_move(self):
 		# we want to look at all available moves
@@ -40,13 +41,25 @@ class Bot(object):
 		# during learning phase, pick moves regardless of score in order to get a
 		# good distribution
 		after = SpecialList()
+		loss = []
 		for move in self.board.moves_avail():
-			new_state = self.board.shallow_update(move, self.player)
+			new_state, win = self.board.shallow_update(move, self.player)
+			if self.learned:
+				if win:
+					self.prev_states.append(new_state)
+					return move
+				loss_state, other_win = self.check_next(move)
+				if other_win:
+					loss.append((new_state, move))
 			try:
 				rank = self.scores[new_state]
 			except:
 				rank = 0
 			after.add((rank, move, new_state))
+		if len(loss) > 0:
+			loss_state, move = loss[0]
+			self.prev_states.append(loss_state)
+			return move
 		if self.bot_type == 0:
 			next_info = after.get_rand()
 		else:
@@ -55,6 +68,14 @@ class Bot(object):
 		new_state = next_info[1]
 		self.prev_states.append(new_state)
 		return move
+
+	def check_next(self, move):
+		if self.player == 1:
+			test_player = 2
+		else:
+			test_player = 1
+		test_state, test_win = self.board.shallow_update(move, test_player)
+		return test_state, test_win
 
 
 	def update(self, outcome):
@@ -69,3 +90,8 @@ class Bot(object):
 			i += 1.0
 		self.prev_states = []
 
+	def display_progress(self):
+		print 'PROGRESS'
+		print 'scores', self.scores
+		for key in self.scores:
+			print key, self.scores[key]

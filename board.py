@@ -16,8 +16,9 @@ class Board(object):
 		else:
 			raise Exception
 		new_state = self.board_state()
+		win = self.check_win(player)
 		self.board[z][y][x] = 0
-		return new_state
+		return new_state, win
 
 	def update(self, (x, y, z), player):
 		if self.board[z][y][x] == 0:
@@ -32,9 +33,9 @@ class Board(object):
 				for z in range(3):
 					if self.board[z][y][x] != player:
 						continue
-					for dx in [0, 1]:
-						for dy in [0, 1]:
-							for dz in [0, 1]:
+					for dx in [-1, 0, 1]:
+						for dy in [-1, 0, 1]:
+							for dz in [-1, 0, 1]:
 								if dx == 0 and dy == 0 and dz == 0:
 									continue
 								newx = x + dx
