@@ -18,7 +18,7 @@ class SpecialList(object):
 		self.order.insert(i, elem)
 
 	def get_first(self):
-		return self.order[0][1:2]
+		return self.order[0][1:]
 
 	def get_rand(self):
 		ind = random.randint(0, len(self.order) - 1)
@@ -39,22 +39,22 @@ class Bot(object):
 		# earlier moves get punished/rewarded less for loss/win
 		# during learning phase, pick moves regardless of score in order to get a
 		# good distribution
+		after = SpecialList()
+		for move in self.board.moves_avail():
+			new_state = self.board.shallow_update(move, self.player)
+			try:
+				rank = self.scores[new_state]
+			except:
+				rank = 0
+			after.add((rank, move, new_state))
 		if self.bot_type == 0:
-			after = SpecialList()
-			for move in self.board.moves_avail():
-				new_state = self.board.shallow_update(move, 2)
-				try:
-					rank = self.scores[new_state]
-				except:
-					rank = 0
-				after.add((rank, move, new_state))
-			move = after.get_rand()[0]
-			new_state = after.get_rand()[1]
-			self.prev_states.append(new_state)
-			return move
+			next_info = after.get_rand()
 		else:
-			pass
-			# self.state == TEST
+			next_info = after.get_first()
+		move = next_info[0]
+		new_state = next_info[1]
+		self.prev_states.append(new_state)
+		return move
 
 
 	def update(self, outcome):

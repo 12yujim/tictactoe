@@ -131,6 +131,7 @@ while running:
 		screen.blit(label, label_pos)
 
 	if state == PLAY:
+		main_bot.bot_type = 1
 		content_init = pygame.font.Font("font/gotham.otf", 20)
 
 		if player == 2:
@@ -301,7 +302,7 @@ while running:
 			main_bot.update(-1)
 			assist_bot.update(-1)
 		elif winner == 2:
-			main_.update(1)
+			main_bot.update(1)
 			assist_bot.update(-1)
 		initialize()
 
