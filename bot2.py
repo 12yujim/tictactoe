@@ -1,7 +1,6 @@
 import pygame
 import random
 
-
 class SpecialList(object):
 	# list that orders elements of the form (a, b, c), ranked by a
 	# elements with larger rank go first

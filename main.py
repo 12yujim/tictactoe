@@ -266,41 +266,40 @@ while running:
 		replayfont = pygame.font.Font(FONT, 20)
 		if winner == 1:
 			main_bot.update(-1)
-			assist_bot.update(-1)
-			the_win = "You win!"
+			assist_bot.update(1)
+			the_win = "You win!...press ENTER"
 		elif winner == 2:
 			main_bot.update(1)
 			assist_bot.update(-1)
-			the_win = "You lose!"
+			the_win = "You lose!...press ENTER"
 		else:
 			the_win = "It's a tie!"
 		replay = "Press ENTER"
 		for square in squares:
 			square.draw()
 		pygame.draw.rect(screen, BLACK, [275, 175, 50, 50])
-		playfont = pygame.font.Font(FONT, 15)
-		instr = "click on a tile"
+		endfont = pygame.font.Font(FONT, 15)
 		top = "top"
 		middle = "middle"
 		bottom = "bottom"
-		instr_rend = playfont.render(instr, 1, BLACK)
-		top_rend = playfont.render(top, 1, BLACK)
-		mid_rend = playfont.render(middle, 1, BLACK)
-		bot_rend = playfont.render(bottom, 1, BLACK)
+		instr_rend = endfont.render(the_win, 1, RED)
+		top_rend = endfont.render(top, 1, BLACK)
+		mid_rend = endfont.render(middle, 1, BLACK)
+		bot_rend = endfont.render(bottom, 1, BLACK)
 		mid_pos = mid_rend.get_rect()
 		mid_pos.centerx = screen.get_rect().centerx
 		screen.blit(instr_rend, (50, 75))
 		screen.blit(top_rend, (105, 300))
 		screen.blit(mid_rend, (mid_pos.left, 300))
 		screen.blit(bot_rend, (435, 300))
-		label = winfont.render(the_win, 1, RED)
-		label2 = replayfont.render(replay, 1, RED)
-		label_pos = label.get_rect()
-		label_pos.centerx = screen.get_rect().centerx
-		label2_pos = label2.get_rect()
-		label2_pos.centerx = screen.get_rect().centerx
-		screen.blit(label, (label_pos.left, 175))
-		screen.blit(label2, (label2_pos.left, 240))
+		# label = winfont.render(the_win, 1, RED)
+		# label2 = replayfont.render(replay, 1, RED)
+		# label_pos = label.get_rect()
+		# label_pos.centerx = screen.get_rect().centerx
+		# label2_pos = label2.get_rect()
+		# label2_pos.centerx = screen.get_rect().centerx
+		# screen.blit(label, (label_pos.left, 175))
+		# screen.blit(label2, (label2_pos.left, 240))
 
 	if state == LEARN_END:
 		for event in pygame.event.get():
