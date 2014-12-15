@@ -136,8 +136,6 @@ while running:
 		screen.blit(label, label_pos)
 
 	if state == PLAY:
-		if main_bot.bot_type != 1:
-			main_bot.bot_type = 1
 		content_init = pygame.font.Font("font/gotham.otf", 20)
 
 		if player == 2:
@@ -191,8 +189,6 @@ while running:
 		screen.blit(bot_rend, (435, 300))
 
 	if state == LEARN:
-		if main_bot.bot_type != 0:
-			main_bot.bot_type = 0
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False

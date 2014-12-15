@@ -29,7 +29,6 @@ class Bot(object):
 		self.player = player
 		self.scores = {}
 		self.prev_states = []
-		self.bot_type = 0
 		self.board = None
 		self.learned = 0
 
@@ -60,10 +59,7 @@ class Bot(object):
 			loss_state, move = loss[0]
 			self.prev_states.append(loss_state)
 			return move
-		if self.bot_type == 0:
-			next_info = after.get_rand()
-		else:
-			next_info = after.get_first()
+		next_info = after.get_rand()
 		move = next_info[0]
 		new_state = next_info[1]
 		self.prev_states.append(new_state)
