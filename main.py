@@ -1,17 +1,13 @@
 import pygame
 import board
 import bot
+import bot2
 
 BLACK = (   0,   0,   0)
 WHITE = ( 255, 255, 255)
 GREEN = (   0, 255,   0)
 RED   = ( 255,   0,   0)
 FONT  = "font/gameboy.ttf"
-
-
-LEARN = 0
-TEST = 1
-
 
 class Button:
 	mouseOn = False
@@ -33,68 +29,6 @@ class Button:
 		textpos.center = self.rect.center
 		screen.blit(self.rend, textpos)
 
-####################################################################################
-
-class SpecialList(object):
-	# list that orders elements of the form (a, b), ranked by a
-	# elements with larger rank go first
-	def __init__(self):
-		self.order = []
-
-	def add(self, elem):
-		rank = elem[0]
-		i = 0
-		for (prev_rank, dc) in self.order:
-			if prev_rank < rank:
-				break
-			i += 1
-		self.order.insert(i, elem)
-
-	def get_first(self):
-		return self.order[0][1]
-
-class Bot(object):
-	def __init__(self):
-		self.player = 2
-		self.scores = {}
-		self.prev_states = []
-		self.bot_type = 0
-
-	def make_move(self):
-		# we want to look at all available moves
-		# keep track of previous states to update at the end
-		# assign score as a function of the position in the list and final score
-		# earlier moves get punished/rewarded less for loss/win
-		# during learning phase, pick moves regardless of score in order to get a
-		# good distribution
-		if self.bot_type == 0:
-			after = SpecialList()
-			for move in gameboard.moves_avail():
-				try:
-					rank = self.scores[move]
-				except:
-					rank = 0
-				after.add((rank, move))
-			print after.get_first()
-			return after.get_first()
-		else:
-			pass
-			# self.state == TEST
-
-
-	def update(self, outcome):
-		# go through previous moves and assign value based on win or loss
-		# outcome is -1 if loss, +1 if win
-		i = 1.0
-		for state in self.prev_states:
-			try:
-				self.scores[state] += ((i/(len(self.prev_states) + 1)) * outcome)
-			except:
-				self.scores[state] = ((i/(len(self.prev_states) + 1)) * outcome)
-			i += 1.0
-
-####################################################################################
-
 # initialization
 pygame.init()
 size = (600, 400)
@@ -102,7 +36,6 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("3D Tic Tac Toe - Lillian Chen & Jim Yu")
 clock = pygame.time.Clock()
 running = True
-comp = Bot()
 
 def initialize():
 	global squares
@@ -135,10 +68,16 @@ PLAY = 2
 LEARN = 3
 ABOUT = 4
 END = 5
+LEARN_END = 6
+
+stop_learning = 0
 
 state = BEGIN
 
 initialize()
+
+main_bot = bot2.Bot(2, gameboard)
+assist_bot = bot2.Bot(1, gameboard)
 
 while running:
 	screen.fill(WHITE)
@@ -167,6 +106,9 @@ while running:
 							state = CHOOSE
 						if button.content == "About":
 							state = ABOUT
+						if button.content == "Learn":
+							stop_learning = 0
+							state = LEARN
 						else:
 							pass
 
@@ -195,9 +137,7 @@ while running:
 			try:
 				# comp.move(gameboard)
 				# if gameboard.update((comp.x, comp.y, comp.z), 2):
-				comp_move = comp.make_move()
-				print 'hi'
-				print comp_move
+				comp_move = main_bot.make_move()
 				if gameboard.update(comp_move, 2):
 					winner = 2
 					state = END
@@ -245,6 +185,44 @@ while running:
 		screen.blit(mid_rend, (mid_pos.left, 300))
 		screen.blit(bot_rend, (435, 300))
 
+	if state == LEARN:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RETURN:
+					stop_learning = 1
+		learn_font = pygame.font.Font(FONT, 15)
+		label = learn_font.render("LEARNING...", 1, BLACK)
+		label_pos = label.get_rect()
+		label_pos.center = screen.get_rect().center
+		screen.blit(label, label_pos)
+		if player == 1:
+			try:
+				comp1_move = assist_bot.make_move()
+				if gameboard.update(comp1_move, 1):
+					winner = 1
+					state = LEARN_END
+				for square in squares:
+					if square.pos == comp1_move:
+						sqaure.content = "X"
+						player = 2
+			except:
+				pass
+
+		if player == 2:
+			try:
+				comp_move = main_bot.make_move()
+				if gameboard.update(comp_move, 2):
+					winner = 2
+					state = LEARN_END
+				for square in squares:
+					if square.pos == comp_move:
+						square.content = "O"
+						player = 1
+			except:
+				pass
+
 	if state == ABOUT:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -284,8 +262,12 @@ while running:
 		winfont = pygame.font.Font(FONT, 20)
 		replayfont = pygame.font.Font(FONT, 10)
 		if winner == 1:
+			main_bot.update(-1)
+			assist_bot.update(-1)
 			the_win = "You win!"
 		elif winner == 2:
+			main_.update(1)
+			assist_bot.update(-1)
 			the_win = "You lose!"
 		else:
 			the_win = "It's a tie!"
@@ -298,6 +280,30 @@ while running:
 		label2_pos.centerx = screen.get_rect().centerx
 		screen.blit(label, (label_pos.left, 175))
 		screen.blit(label2, (label2_pos.left, 240))
+
+	if state == LEARN_END:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_RETURN:
+					stop_learning = 1
+		if stop_learning == 1:
+			state = BEGIN
+		else:
+			state = LEARN
+		learn_font = pygame.font.Font(FONT, 15)
+		label = learn_font.render("LEARNING...", 1, BLACK)
+		label_pos = label.get_rect()
+		label_pos.center = screen.get_rect().center
+		screen.blit(label, label_pos)
+		if winner == 1:
+			main_bot.update(-1)
+			assist_bot.update(-1)
+		elif winner == 2:
+			main_.update(1)
+			assist_bot.update(-1)
+		initialize()
 
 	pygame.display.flip()
 	clock.tick(60)

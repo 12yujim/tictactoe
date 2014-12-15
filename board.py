@@ -9,6 +9,16 @@ class Board(object):
 		self.bot = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
 		self.board = [self.top, self.mid, self.bot]
 
+	def shallow_update(self, (x, y, z), player):
+		# make a special update to allow for checking the next board state given a move
+		if self.board[z][y][x] == 0:
+			self.board[z][y][x] = player
+		else:
+			raise Exception
+		new_state = self.board_state()
+		self.board[z][y][x] = 0
+		return new_state
+
 	def update(self, (x, y, z), player):
 		if self.board[z][y][x] == 0:
 			self.board[z][y][x] = player
@@ -55,10 +65,10 @@ class Board(object):
 	# returns the availables moves in a list of (x, y, z) tuples
 	def moves_avail(self):
 		avail = []
-		for z in [0, 1, 2]:
-			for x in [0, 1, 2]:
-				for y in [0, 1, 2]:
-					if self.board[z][x][y] == 0:
+		for z in range(3):
+			for x in range(3):
+				for y in range(3):
+					if self.board[z][y][x] == 0:
 						avail.append((x, y, z))
 		return avail
 
